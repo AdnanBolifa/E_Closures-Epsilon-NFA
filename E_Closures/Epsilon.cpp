@@ -1,80 +1,82 @@
 #include "Epsilon.h"
-
-Epsilon::Epsilon(std::string fileName, std::string word)
+using namespace std;
+Epsilon::Epsilon(std::string fileName)
 {
     this->fileName = fileName;
-    this->word = word;
     FileSearch();
-    nextState();
+    PrintTransitionTable(transition_table);
+    FindEclosure();
 }
 
 void Epsilon::FileSearch()
 {
-    std::ifstream myfile(fileName);
+    ifstream myfile(fileName);
     if (!myfile)
     {
-        std::cout << "No such file";
+        cout << "No such file";
+        return;
     }
-    else
+    string temp;
+    getline(myfile, temp);
+    AddToArray(states, temp);
+
+    getline(myfile, temp);
+    sizeOfAlpha = removeSpaces(temp);
+    AddToArray(alphabet, temp);
+
+    getline(myfile, temp);
+    startState = temp;
+
+    getline(myfile, temp);
+    AddToArray(endState, temp);
+
+    for (int i = 0; i < NOL() - 4; i++)
     {
-        std::string temp;
         getline(myfile, temp);
-        AddToArray(states, temp);
-
-        getline(myfile, temp);
-        sizeOfAlpha = removeSpaces(temp);
-        AddToArray(alphabet, temp);
-
-        getline(myfile, temp);
-        startState = temp;
-
-        getline(myfile, temp);
-        AddToArray(endState, temp);
-
-        for (int i = 0; i < NOL() - 4; i++)
-        {
-            getline(myfile, temp);
-            AddTo2DArray(transition_table, temp, i);
-        }
+        AddTo2DArray(transition_table, temp, i);
     }
     myfile.close();
 }
-
 void Epsilon::nextState()
 {
-    if (ValidWord(word))
+
+    string currentState = startState;
+    string temp;
+    string nextState = transition_table[0][epsilon];
+    for (size_t i = 0; i < NOL() - 4; i++)
     {
-        int rows = 0;
-        int j = 0;
-        std::string currentState = startState;
-        for (int i = 0; i < word.length(); i++)
+        nextState = transition_table[i][epsilon];
+        temp += nextState;
+    }
+    cout << endl;
+}
+void Epsilon::FindEclosure()
+{
+    int rows = 0;
+    int j = 0;
+   
+    for (size_t i = 0; i < sizeOfAlpha; i++)
+    {
+        if (alphabet[i] == "E")
+            epsilon = i;
+    }
+    nextState();
+    for (size_t i = 0; i < NOL() - 4; i++)
+    {
+        if (transition_table[i][epsilon] == "-")
         {
-            std::string temp = currentState;
-            while (j != sizeOfAlpha)
-            {
-                if (alphabet[j] == std::string(1, word[i]))
-                    currentState = transition_table[rows][j];
-                j++;
-            }
-            if (temp != currentState)
-            {
-                rows++;
-                j = 0;
-            }
-            j = 0;
+            cout << "E-Closure of (" << states[i] << ") = {" << states[i]<< "}\n";
+            continue;
         }
-        std::cout << "Current state: " << currentState << "\n";
-        if (currentState == endState[0])
-            std::cout << "\tAccepted!..\n";
-        else
-            std::cout << "\tNot Accepted!..\n";
+        cout << "E-Closure of (" << states[i] << ") = {"<< states[i]<<"," 
+             << transition_table[i][epsilon] << ",}\n";
     }
 }
 
 int Epsilon::NOL()
 {
-    std::ifstream myFile(fileName);
-    std::string line;
+    ifstream myFile(fileName);
+    string line;
     int count = 0;
     while (!myFile.eof())
     {
@@ -85,32 +87,10 @@ int Epsilon::NOL()
     return count;
 }
 
-bool Epsilon::ValidWord(std::string word)
-{
-    for (char c : word)
-    {
-        bool charIsValid = false;
-        for (std::string validChar : alphabet)
-        {
-            if (c == validChar[0])
-            {
-                charIsValid = true;
-                break;
-            }
-        }
-        if (!charIsValid)
-        {
-            std::cout << c << ": is not a valid character!\n";
-            return false;
-        }
-    }
-    return true;
-}
-
-int Epsilon::removeSpaces(std::string str)
+int Epsilon::removeSpaces(string str)
 {
     size_t pos = str.find(' ');
-    while (pos != std::string::npos)
+    while (pos != string::npos)
     {
         str.replace(pos, 1, "");
         pos = str.find(' ');
@@ -118,7 +98,7 @@ int Epsilon::removeSpaces(std::string str)
     return str.length();
 }
 
-void Epsilon::AddToArray(std::string(&arr)[MAX_SIZE], std::string temp)
+void Epsilon::AddToArray(string(&arr)[MAX_SIZE], string temp)
 {
     int j = 0;
     for (int i = 0; i < temp.length(); i++)
@@ -132,7 +112,7 @@ void Epsilon::AddToArray(std::string(&arr)[MAX_SIZE], std::string temp)
     }
 }
 
-void Epsilon::AddTo2DArray(std::string(&arr)[MAX_SIZE][MAX_SIZE], std::string temp, int row)
+void Epsilon::AddTo2DArray(string(&arr)[MAX_SIZE][MAX_SIZE], string temp, int row)
 {
     int j = 0;
     for (int i = 0; i < temp.length(); i++)
@@ -144,4 +124,27 @@ void Epsilon::AddTo2DArray(std::string(&arr)[MAX_SIZE][MAX_SIZE], std::string te
         }
         arr[row][j] += temp[i];
     }
+}
+void Epsilon::PrintTransitionTable(string array[MAX_SIZE][MAX_SIZE])
+{
+    cout << "Your Transition table from " + fileName <<" is: \n\n";
+    cout << "   ";
+    for (size_t i = 0; i < sizeOfAlpha; i++)
+    {
+        cout << alphabet[i] << " ";
+    }cout << endl;
+    for (size_t i = 1; i < (sizeOfAlpha * sizeOfAlpha); i++)
+    {
+        cout << "-";
+    }cout << endl;
+    for (size_t i = 0; i < NOL() - 4; i++)
+    {
+        cout << states[i] << "| ";
+        for (size_t j = 0; j < sizeOfAlpha; j++)
+        {
+            cout << transition_table[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << "--------\n";
 }

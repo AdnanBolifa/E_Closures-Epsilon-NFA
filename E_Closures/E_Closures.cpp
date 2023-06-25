@@ -3,9 +3,7 @@ using namespace std;
 int main()
 {
     string fileName = "E_NFA.txt";
-    string word = "010101";
-
-    Epsilon epsilon(fileName, word);
+    Epsilon epsilon(fileName);
 
     return 0;
 }

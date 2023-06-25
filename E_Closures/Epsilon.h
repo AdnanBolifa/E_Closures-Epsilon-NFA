@@ -2,11 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+using namespace std;
 class Epsilon
 {
 public:
-    Epsilon(std::string fileName, std::string word);
+    Epsilon(std::string fileName);
 
 private:
     static const int MAX_SIZE = 25;
@@ -18,12 +18,14 @@ private:
     std::string transition_table[MAX_SIZE][MAX_SIZE];
     std::string fileName;
     std::string word;
+    int epsilon = 0;
 
     void FileSearch();
-    void nextState();
+    void FindEclosure();
     int NOL();
-    bool ValidWord(std::string word);
-    int removeSpaces(std::string str);
-    void AddToArray(std::string(&arr)[MAX_SIZE], std::string temp);
-    void AddTo2DArray(std::string(&arr)[MAX_SIZE][MAX_SIZE], std::string temp, int row);
+    int removeSpaces(string str);
+    void AddToArray(string(&arr)[MAX_SIZE], std::string temp);
+    void AddTo2DArray(string(&arr)[MAX_SIZE][MAX_SIZE], std::string temp, int row);
+    void PrintTransitionTable(string arr[MAX_SIZE][MAX_SIZE]);
+    void nextState();
 };
