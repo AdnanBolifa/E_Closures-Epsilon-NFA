@@ -6,6 +6,7 @@ Epsilon::Epsilon(std::string fileName)
     FileSearch();
     PrintTransitionTable(transition_table);
     FindEclosure();
+    
 }
 
 void Epsilon::FileSearch()
@@ -37,16 +38,32 @@ void Epsilon::FileSearch()
     }
     myfile.close();
 }
-void Epsilon::nextState()
+int Epsilon::FindIndex(string state)
 {
-
-    string currentState = startState;
-    string temp;
-    string nextState = transition_table[0][epsilon];
+    for (size_t j = 0; j < NOL() - 4; j++)
+    {
+        if (states[j] == state)
+            return j;
+    }
+}
+string Epsilon::CheckEpsilon(string currentState)
+{
+    string epsilonStr = currentState;
+    while (currentState != "-")
+    {
+        currentState = transition_table[FindIndex(currentState)][epsilon];
+        if (currentState == "-") break;
+        epsilonStr += currentState;
+    }
+    return epsilonStr;
+}
+string Epsilon::nextState()
+{
     for (size_t i = 0; i < NOL() - 4; i++)
     {
-        nextState = transition_table[i][epsilon];
-        temp += nextState;
+        if (transition_table[i][epsilon] == "-")
+            continue;
+        return CheckEpsilon(transition_table[i][epsilon]);
     }
     cout << endl;
 }
@@ -60,16 +77,15 @@ void Epsilon::FindEclosure()
         if (alphabet[i] == "E")
             epsilon = i;
     }
-    nextState();
-    for (size_t i = 0; i < NOL() - 4; i++)
+    cout << "E-Closure of (" << states[0] << ") = {" << states[0] << "," << nextState() << ",}\n";
+    for (size_t i = 1; i < NOL() - 4; i++)
     {
         if (transition_table[i][epsilon] == "-")
         {
             cout << "E-Closure of (" << states[i] << ") = {" << states[i]<< "}\n";
             continue;
         }
-        cout << "E-Closure of (" << states[i] << ") = {"<< states[i]<<"," 
-             << transition_table[i][epsilon] << ",}\n";
+        cout << "E-Closure of (" << states[i] << ") = {"<< nextState() << ",}\n";
     }
 }
 

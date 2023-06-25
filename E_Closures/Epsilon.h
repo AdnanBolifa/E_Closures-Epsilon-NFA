@@ -17,8 +17,8 @@ private:
     std::string endState[MAX_SIZE];
     std::string transition_table[MAX_SIZE][MAX_SIZE];
     std::string fileName;
-    std::string word;
     int epsilon = 0;
+    bool visited[MAX_SIZE] = { false };
 
     void FileSearch();
     void FindEclosure();
@@ -27,5 +27,7 @@ private:
     void AddToArray(string(&arr)[MAX_SIZE], std::string temp);
     void AddTo2DArray(string(&arr)[MAX_SIZE][MAX_SIZE], std::string temp, int row);
     void PrintTransitionTable(string arr[MAX_SIZE][MAX_SIZE]);
-    void nextState();
+    int FindIndex(string state);
+    string CheckEpsilon(string currentState);
+    string nextState();
 };
