@@ -1,4 +1,5 @@
 #include "Epsilon.h"
+#include <sstream>
 using namespace std;
 Epsilon::Epsilon(std::string fileName)
 {
@@ -18,31 +19,59 @@ void Epsilon::FileSearch()
         return;
     }
     string temp;
-    getline(myfile, temp);
-    AddToArray(states, temp);
-
-    getline(myfile, temp);
-    sizeOfAlpha = removeSpaces(temp);
-    AddToArray(alphabet, temp);
-
-    getline(myfile, temp);
-    startState = temp;
-
-    getline(myfile, temp);
-    AddToArray(endState, temp);
-
-    for (int i = 0; i < NOL() - 4; i++)
+    while (getline(myfile, temp))
     {
-        getline(myfile, temp);
-        AddTo2DArray(transition_table, temp, i);
+        if (temp[0] == '#') // Ignore lines starting with '#'
+            continue;
+        AddToArray(states, temp);
+        break;
     }
+
+    while (getline(myfile, temp))
+    {
+        if (temp[0] == '#') // Ignore lines starting with '#'
+            continue;
+        sizeOfAlpha = removeSpaces(temp);
+        AddToArray(alphabet, temp);
+        break;
+    }
+
+    while (getline(myfile, temp))
+    {
+        if (temp[0] == '#') // Ignore lines starting with '#'
+            continue;
+        startState = temp;
+        break;
+    }
+
+    while (getline(myfile, temp))
+    {
+        if (temp[0] == '#') // Ignore lines starting with '#'
+            continue;
+        AddToArray(endState, temp);
+        break;
+    }
+
+    int i = 0;
+    while (getline(myfile, temp))
+    {
+        if (temp[0] == '#') // Ignore lines starting with '#'
+            continue;
+        AddTo2DArray(transition_table, temp, i);
+        i++;
+        if (i >= NOL() - 4)
+            break;
+    }
+
     myfile.close();
 }
+
 int Epsilon::FindIndex(string state)
 {
+    string str(1, state[0]);
     for (size_t j = 0; j < NOL() - 4; j++)
     {
-        if (states[j] == state)
+        if (states[j] == str)
             return j;
     }
 }
@@ -53,7 +82,7 @@ string Epsilon::CheckEpsilon(string currentState)
     {
         currentState = transition_table[FindIndex(currentState)][epsilon];
         if (currentState == "-") break;
-        epsilonStr += currentState;
+        epsilonStr += " " + currentState;
     }
     return epsilonStr;
 }
@@ -88,21 +117,20 @@ void Epsilon::FindEclosure()
         cout << "E-Closure of (" << states[i] << ") = {"<< nextState() << ",}\n";
     }
 }
-
 int Epsilon::NOL()
 {
     ifstream myFile(fileName);
     string line;
     int count = 0;
-    while (!myFile.eof())
+    while (getline(myFile, line))
     {
-        getline(myFile, line);
+        if (line.empty() || line[0] == '#') // Ignore empty lines and lines starting with '#'
+            continue;
         count++;
     }
     myFile.close();
     return count;
 }
-
 int Epsilon::removeSpaces(string str)
 {
     size_t pos = str.find(' ');
@@ -113,7 +141,6 @@ int Epsilon::removeSpaces(string str)
     }
     return str.length();
 }
-
 void Epsilon::AddToArray(string(&arr)[MAX_SIZE], string temp)
 {
     int j = 0;
@@ -127,7 +154,6 @@ void Epsilon::AddToArray(string(&arr)[MAX_SIZE], string temp)
         arr[j] += temp[i];
     }
 }
-
 void Epsilon::AddTo2DArray(string(&arr)[MAX_SIZE][MAX_SIZE], string temp, int row)
 {
     int j = 0;

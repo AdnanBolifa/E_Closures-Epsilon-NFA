@@ -1,3 +1,4 @@
+#THIS IS A COMMENT!
 A B C
 0 1 E
 A
@@ -5,3 +6,11 @@ C
 A - B
 - B C
 C C -
+########################################
+#P Q R
+#a b c E
+#P
+#R
+#- Q R Q,R
+#P R PQ -
+#- - - -

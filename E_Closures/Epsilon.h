@@ -18,7 +18,6 @@ private:
     std::string transition_table[MAX_SIZE][MAX_SIZE];
     std::string fileName;
     int epsilon = 0;
-    bool visited[MAX_SIZE] = { false };
 
     void FileSearch();
     void FindEclosure();
